@@ -1,16 +1,18 @@
 package main
 
 import (
-	"cadet"
-	"fmt"
 	"os"
 )
 
-func main() {
-	//s := "4B (hex) points get"
-	s, err := os.ReadFile("../cat.txt")
-	if err != nil {
-		panic(err)
+func check(e error) {
+	if e != nil {
+		panic(e)
 	}
-	fmt.Println("test value:", string(cadet.HexHandler(s)))
+}
+
+func main() {
+	args := os.Args[1:]
+	primaryStr, _ := os.ReadFile("../texts/" + args[0])
+	err := os.WriteFile("../texts/"+args[1], primaryStr, 0644)
+	check(err)
 }
