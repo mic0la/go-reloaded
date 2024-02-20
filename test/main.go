@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cadet"
 	"os"
 )
 
@@ -13,6 +14,7 @@ func check(e error) {
 func main() {
 	args := os.Args[1:]
 	primaryStr, _ := os.ReadFile("../texts/" + args[0])
-	err := os.WriteFile("../texts/"+args[1], primaryStr, 0644)
+	secondaryStr := cadet.CorrectAll(string(primaryStr))
+	err := os.WriteFile("../texts/"+args[1], []byte(secondaryStr), 0644)
 	check(err)
 }
