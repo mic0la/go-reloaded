@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"reloaded"
 )
@@ -19,5 +18,4 @@ func main() {
 	//fmt.Println(secondaryStr)
 	err := os.WriteFile("../texts/"+args[1], []byte(secondaryStr), 0644)
 	check(err)
-	fmt.Println()
 }
