@@ -1,8 +1,9 @@
 package main
 
 import (
-	"cadet"
+	"fmt"
 	"os"
+	"reloaded"
 )
 
 func check(e error) {
@@ -14,7 +15,9 @@ func check(e error) {
 func main() {
 	args := os.Args[1:]
 	primaryStr, _ := os.ReadFile("../texts/" + args[0])
-	secondaryStr := cadet.CorrectAll(string(primaryStr))
+	secondaryStr := reloaded.CorrectAll(string(primaryStr))
+	//fmt.Println(secondaryStr)
 	err := os.WriteFile("../texts/"+args[1], []byte(secondaryStr), 0644)
 	check(err)
+	fmt.Println()
 }
