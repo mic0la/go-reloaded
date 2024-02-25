@@ -122,13 +122,13 @@ func setCharsMany(re *regexp.Regexp, str string, charType string) string {
 }
 
 func CorrectAll(str string) string {
-	reHex := regexp.MustCompile(`[A-F0-9]+[\s,!.\[\]{}():;']*\(hex\)`)
+	reHex := regexp.MustCompile(`[a-fA-F0-9]+[\s,!.\[\]{}():;']*\(hex\)`)
 	reBin := regexp.MustCompile(`[0-1]+[\s,!.\[\]{}():;']*\(bin\)`)
 	reCap := regexp.MustCompile(`[a-zA-Z\[\](){}]+[\s,!.:;']*\(cap\)`)
 	reLow := regexp.MustCompile(`[a-zA-Z\[\](){}]+[\s,!.:;']*\(low\)`)
 	reUp := regexp.MustCompile(`[a-zA-Z\[\](){}]+[\s,!.:;']*\(up\)`)
 	//reCapMany := regexp.MustCompile(`.+\(cap,\s\d+\)`)
-	rePunc := regexp.MustCompile(`[\s^.!]*[.,,,!,?,:;]\s*`) // try case with `some word !?<newline>word` prints something weird
+	rePunc := regexp.MustCompile(`[\s^.!]*[.,,,!,?,:;]`)
 	reQuotes := regexp.MustCompile(`'\s*[^']*\s*'`)
 	reAn := regexp.MustCompile(`\s[Aa]\s+\w`)
 
