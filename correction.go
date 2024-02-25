@@ -1,7 +1,6 @@
 package reloaded
 
 import (
-	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -142,7 +141,6 @@ func setCharsMany(re *regexp.Regexp, str string, charType string) string {
 				break
 			}
 		}
-		fmt.Println(arr[:i])
 		for i = startFrom; i >= 0; i-- {
 			if unicode.IsLetter(rune(arr[i])) {
 				startFrom = i
@@ -152,6 +150,12 @@ func setCharsMany(re *regexp.Regexp, str string, charType string) string {
 		for i = startFrom; i >= 0; i-- {
 			if arr[i] == ' ' {
 				countSpace++
+				for i >= 0 {
+					if unicode.IsLetter(rune(arr[i])) {
+						break
+					}
+					i--
+				}
 			}
 			if countSpace == wordsToChange {
 				arrToChange = arr[i:]
@@ -162,8 +166,8 @@ func setCharsMany(re *regexp.Regexp, str string, charType string) string {
 		case "up":
 			arrToChange = strings.ToUpper(arrToChange)
 		case "cap":
-			fmt.Println(arrToChange)
-			arrToChange = strings.ToTitle(arrToChange)
+			arrToChange = strings.ToLower(arrToChange)
+			arrToChange = strings.ToUpper(string(arrToChange[0])) + arrToChange[1:]
 		case "low":
 			arrToChange = strings.ToLower(arrToChange)
 		}
@@ -185,6 +189,7 @@ func CorrectAll(str string) string {
 	reUp := regexp.MustCompile(`[a-zA-Z\'[\](){}]+[\s,!.:;]*\(up\)`)
 	reCapMany := regexp.MustCompile(`.*\(cap,\s(\d+)\)`)
 	reUpMany := regexp.MustCompile(`.*\(up,\s(\d+)\)`)
+	reLowMany := regexp.MustCompile(`.*\(low,\s(\d+)\)`)
 	rePunc := regexp.MustCompile(`[\s^.?!]*[.,,,!,?,:;]\s*`)
 	reQuotes := regexp.MustCompile(`'\s*[^']*\s*'`)
 	reAn := regexp.MustCompile(`\s[Aa]\s+\w\w+`)
@@ -199,6 +204,7 @@ func CorrectAll(str string) string {
 	result = fixAn(reAn, result)
 	result = setCharsMany(reUpMany, result, "up")
 	result = setCharsMany(reCapMany, result, "cap")
+	result = setCharsMany(reLowMany, result, "low")
 
 	return result
 }
