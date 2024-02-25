@@ -42,7 +42,8 @@ func setChars(re *regexp.Regexp, str string, charType string) string {
 		switch charType {
 		case "cap":
 			// caser = cases.Title(language.English) //{without deprication}
-			arr = strings.ToTitle(arr)
+			arr = strings.ToLower(arr)
+			arr = strings.ToUpper(string(arr[0])) + arr[1:]
 		case "low":
 			// caser = cases.Title(language.English) //{without deprication}
 			arr = strings.ToLower(arr)
@@ -182,11 +183,11 @@ func CorrectAll(str string) string {
 	reCap := regexp.MustCompile(`[a-zA-Z'\[\](){}]+[\s,!.:;]*\(cap\)`)
 	reLow := regexp.MustCompile(`[a-zA-Z'\[\](){}]+[\s,!.:;]*\(low\)`)
 	reUp := regexp.MustCompile(`[a-zA-Z\'[\](){}]+[\s,!.:;]*\(up\)`)
-	//reCapMany := regexp.MustCompile(`.*\(cap,\s(\d+)\)`)
+	reCapMany := regexp.MustCompile(`.*\(cap,\s(\d+)\)`)
 	reUpMany := regexp.MustCompile(`.*\(up,\s(\d+)\)`)
 	rePunc := regexp.MustCompile(`[\s^.?!]*[.,,,!,?,:;]\s*`)
 	reQuotes := regexp.MustCompile(`'\s*[^']*\s*'`)
-	reAn := regexp.MustCompile(`\s[Aa]\s+\w`)
+	reAn := regexp.MustCompile(`\s[Aa]\s+\w\w+`)
 
 	result := setNums(reBin, str, "(bin)", 2)
 	result = setNums(reHex, result, "(hex)", 16)
@@ -197,7 +198,7 @@ func CorrectAll(str string) string {
 	result = fixQuote(reQuotes, result)
 	result = fixAn(reAn, result)
 	result = setCharsMany(reUpMany, result, "up")
-	//result = setCharsMany(reCapMany, result, "cap")
+	result = setCharsMany(reCapMany, result, "cap")
 
 	return result
 }
