@@ -158,7 +158,7 @@ func setCharsMany(re *regexp.Regexp, str string, charType string) string {
 				}
 			}
 			if countSpace == wordsToChange {
-				arrToChange = arr[i:]
+				arrToChange = arr[i+1:]
 				break
 			}
 		}
@@ -177,7 +177,7 @@ func setCharsMany(re *regexp.Regexp, str string, charType string) string {
 				break
 			}
 		}
-		return arr[:i] + arrToChange[:cutHere-1]
+		return arr[:i+1] + arrToChange[:cutHere-1]
 	})
 }
 
