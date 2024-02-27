@@ -9,7 +9,7 @@ import (
 	// "golang.org/x/text/language"
 )
 
-func setNums(re *regexp.Regexp, str string, numTypeName string, numTypeInt int) string {
+func setNums(re *regexp.Regexp, str string, numTypeInt int) string {
 	return re.ReplaceAllStringFunc(str, func(arr string) string {
 		last6Runes := len(arr) - 6
 		arr = arr[:last6Runes]
@@ -58,10 +58,10 @@ func setChars(re *regexp.Regexp, str string, charType string) string {
 func fixPunc(re *regexp.Regexp, str string) string {
 	return re.ReplaceAllStringFunc(str, func(arr string) string {
 		connector := " "
-		if strings.HasSuffix(arr, "\n") {
-			connector = "\n"
+		if arr[len(arr)-1] == 10 {
+			connector = ""
 		}
-		arr = strings.TrimSpace(arr)
+		arr = strings.Trim(arr, " ")
 		return arr + connector
 	})
 }
@@ -129,6 +129,7 @@ func setCharsMany(re *regexp.Regexp, str string, charType string) string {
 		var arrToChange string
 		var i int
 		var cutHere int
+		outOfRange := false
 		for i = len(arr) - 1; i >= 0; i-- {
 			if arr[i] == ' ' {
 				wordsToChange, _ = strconv.Atoi(arr[i+1 : len(arr)-1])
@@ -147,15 +148,24 @@ func setCharsMany(re *regexp.Regexp, str string, charType string) string {
 				break
 			}
 		}
-		for i = startFrom; i >= 0; i-- {
+		for i = startFrom; i > 0; i-- {
 			if arr[i] == ' ' {
 				countSpace++
-				for i >= 0 {
+				for i > 0 {
 					if unicode.IsLetter(rune(arr[i])) {
 						break
 					}
 					i--
 				}
+			}
+			if i == 1 {
+				if countSpace == wordsToChange {
+					arrToChange = arr[i+1:]
+					break
+				}
+				arrToChange = arr
+				outOfRange = true
+				break
 			}
 			if countSpace == wordsToChange {
 				arrToChange = arr[i+1:]
@@ -167,7 +177,21 @@ func setCharsMany(re *regexp.Regexp, str string, charType string) string {
 			arrToChange = strings.ToUpper(arrToChange)
 		case "cap":
 			arrToChange = strings.ToLower(arrToChange)
-			arrToChange = strings.ToUpper(string(arrToChange[0])) + arrToChange[1:]
+			for i := 0; i < len(arrToChange); i++ {
+				if unicode.IsLetter(rune(arrToChange[i])) {
+					arrToChange = arrToChange[:i] + strings.ToUpper(string(arrToChange[i])) + arrToChange[i+1:]
+					for i < len(arrToChange) {
+						if arrToChange[i] == '\'' {
+							i++
+							continue
+						}
+						if !unicode.IsLetter(rune(arrToChange[i])) {
+							break
+						}
+						i++
+					}
+				}
+			}
 		case "low":
 			arrToChange = strings.ToLower(arrToChange)
 		}
@@ -176,6 +200,9 @@ func setCharsMany(re *regexp.Regexp, str string, charType string) string {
 				cutHere = j
 				break
 			}
+		}
+		if outOfRange {
+			return arrToChange[:len(arrToChange)-9]
 		}
 		return arr[:i+1] + arrToChange[:cutHere-1]
 	})
@@ -194,8 +221,8 @@ func CorrectAll(str string) string {
 	reQuotes := regexp.MustCompile(`'\s*[^']*\s*'`)
 	reAn := regexp.MustCompile(`\s[Aa]\s+\w\w+`)
 
-	result := setNums(reBin, str, "(bin)", 2)
-	result = setNums(reHex, result, "(hex)", 16)
+	result := setNums(reBin, str, 2)
+	result = setNums(reHex, result, 16)
 	result = setChars(reCap, result, "cap")
 	result = setChars(reLow, result, "low")
 	result = setChars(reUp, result, "up")
