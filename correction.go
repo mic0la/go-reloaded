@@ -11,9 +11,13 @@ import (
 
 func setNums(re *regexp.Regexp, str string, numTypeInt int) string {
 	return re.ReplaceAllStringFunc(str, func(arr string) string {
-		last6Runes := len(arr) - 6
+		connector := " "
+		if arr[0] == '\n' {
+			connector = "\n"
+		}
+		last6Runes := len(arr) - 5
 		arr = arr[:last6Runes]
-		arr = strings.Trim(arr, " ")
+		arr = strings.TrimSpace(arr)
 		arr = strings.Trim(arr, ",")
 		arr = strings.Trim(arr, ".")
 		arr = strings.Trim(arr, "(")
@@ -26,7 +30,7 @@ func setNums(re *regexp.Regexp, str string, numTypeInt int) string {
 		arr = strings.Trim(arr, "'")
 		decDigit, _ := strconv.ParseInt(arr, numTypeInt, 64)
 		result := strconv.Itoa(int(decDigit))
-		return result
+		return connector + result
 	})
 }
 
@@ -57,12 +61,8 @@ func setChars(re *regexp.Regexp, str string, charType string) string {
 
 func fixPunc(re *regexp.Regexp, str string) string {
 	return re.ReplaceAllStringFunc(str, func(arr string) string {
-		connector := " "
-		if arr[len(arr)-1] == 10 {
-			connector = ""
-		}
-		arr = strings.Trim(arr, " ")
-		return arr + connector
+		arr = strings.TrimSpace(arr)
+		return arr + " "
 	})
 }
 
@@ -81,15 +81,21 @@ func headSpacesCut(str string) string {
 }
 
 func tailSpacesCut(str string) string {
-	if str[len(str)-1] == ' ' {
-		return headSpacesCut(str[:len(str)-1])
+	if str[len(str)-1] == ' ' || str[len(str)-1] == '\n' {
+		return tailSpacesCut(str[:len(str)-1])
 	}
 	return str
 }
 
 func fixAn(re *regexp.Regexp, str string) string {
 	return re.ReplaceAllStringFunc(str, func(arr string) string {
-		letter := arr[len(arr)-1]
+		var letter rune
+		for _, v := range arr[2:] {
+			if unicode.IsLetter(v) {
+				letter = v
+				break
+			}
+		}
 		switch letter {
 		case 'a':
 			arr = arr[:2] + "n" + arr[2:]
@@ -116,7 +122,6 @@ func fixAn(re *regexp.Regexp, str string) string {
 		case 'H':
 			arr = arr[:2] + "n" + arr[2:]
 		}
-
 		return arr
 	})
 }
@@ -209,8 +214,8 @@ func setCharsMany(re *regexp.Regexp, str string, charType string) string {
 }
 
 func CorrectAll(str string) string {
-	reHex := regexp.MustCompile(`[a-fA-F0-9]+[\s,!.\[\]{}():;']*\(hex\)`)
-	reBin := regexp.MustCompile(`[0-1]+[\s,!.\[\]{}():;']*\(bin\)`)
+	reHex := regexp.MustCompile(`\s[a-fA-F0-9]+[\s,!.\[\]{}():;']*\(hex\)`)
+	reBin := regexp.MustCompile(`\s[0-1]+[\s,!.\[\]{}():;']*\(bin\)`)
 	reCap := regexp.MustCompile(`[a-zA-Z'\[\](){}]+[\s,!.:;]*\(cap\)`)
 	reLow := regexp.MustCompile(`[a-zA-Z'\[\](){}]+[\s,!.:;]*\(low\)`)
 	reUp := regexp.MustCompile(`[a-zA-Z\'[\](){}]+[\s,!.:;]*\(up\)`)
