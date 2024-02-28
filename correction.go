@@ -15,10 +15,10 @@ func setNums(re *regexp.Regexp, str string, numTypeInt int) string {
 		if arr[0] == '\n' {
 			connector = "\n"
 		}
-		arr = strings.TrimSpace(arr)
+		arr = theTrimSpace(arr)
 		for i, v := range arr {
 			if v == '(' {
-				arr = arr[:i-1]
+				arr = arr[:i]
 			}
 		}
 		decDigit, _ := strconv.ParseInt(arr, numTypeInt, 64)
@@ -225,8 +225,8 @@ func setCharsMany(re *regexp.Regexp, str string, charType string) string {
 }
 
 func CorrectAll(str string) string {
-	reHex := regexp.MustCompile(`\s[a-fA-F0-9]+[\s,!.\[\]{}():;']*\(hex\)`)
-	reBin := regexp.MustCompile(`\s[0-1]+[\s,!.\[\]{}():;']*\(bin\)`)
+	reHex := regexp.MustCompile(`\s+[a-fA-F0-9]+[\s,!.\[\]{}():;']*\(hex\)`)
+	reBin := regexp.MustCompile(`\s+[0-1]+[\s,!.\[\]{}():;']*\(bin\)`)
 	reCap := regexp.MustCompile(`[a-zA-Z'\[\](){}]+[\s,!.:;]*\((cap|Cap|CAP)\)`)
 	reLow := regexp.MustCompile(`[a-zA-Z'\[\](){}]+[\s,!.:;]*\((low|Low|LOW)\)`)
 	reUp := regexp.MustCompile(`[a-zA-Z\'[\](){}]+[\s,!.:;]*\((up|UP|Up)\)`)
@@ -250,6 +250,24 @@ func CorrectAll(str string) string {
 	result = setCharsMany(reCapMany, result, "cap")
 	result = setCharsMany(reLowMany, result, "low")
 	result = fixPunc2(rePunc2, result)
+
+	for i := 0; i < len(result); i++ {
+		if i == len(result)-1 {
+			break
+		}
+		if result[i] == '(' {
+			switch {
+			case result[i+1] == 'b' || result[i+1] == 'B':
+				if result[i+2] == 'i' || result[i+2] == 'I' {
+					result = result[:i] + result[i+5:]
+				}
+			case result[i+1] == 'h' || result[i+1] == 'H':
+				if result[i+2] == 'e' || result[i+2] == 'E' {
+					result = result[:i] + result[i+5:]
+				}
+			}
+		}
+	}
 
 	return result
 }
