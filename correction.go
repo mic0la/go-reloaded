@@ -146,18 +146,15 @@ func setCharsMany(re *regexp.Regexp, str string, charType string) string {
 		var i int
 		var cutHere int
 		outOfRange := false
+
 		for i = len(arr) - 1; i >= 0; i-- {
-			if arr[i] == ' ' {
+			if arr[i] == ' ' || arr[i] == '\n' {
+				startFrom = i - 5
 				wordsToChange, _ = strconv.Atoi(arr[i+1 : len(arr)-1])
 				break
 			}
 		}
-		for i = len(arr) - 1; i >= 0; i-- {
-			if arr[i] == '(' {
-				startFrom = i
-				break
-			}
-		}
+
 		for i = startFrom; i >= 0; i-- {
 			if unicode.IsLetter(rune(arr[i])) {
 				startFrom = i
@@ -188,6 +185,7 @@ func setCharsMany(re *regexp.Regexp, str string, charType string) string {
 				break
 			}
 		}
+
 		switch charType {
 		case "up":
 			arrToChange = strings.ToUpper(arrToChange)
@@ -224,33 +222,7 @@ func setCharsMany(re *regexp.Regexp, str string, charType string) string {
 	})
 }
 
-func CorrectAll(str string) string {
-	reHex := regexp.MustCompile(`\s+[a-fA-F0-9]+[\s,!.\[\]{}():;']*\(hex\)`)
-	reBin := regexp.MustCompile(`\s+[0-1]+[\s,!.\[\]{}():;']*\(bin\)`)
-	reCap := regexp.MustCompile(`[a-zA-Z'\[\](){}]+[\s,!.:;]*\((cap|Cap|CAP)\)`)
-	reLow := regexp.MustCompile(`[a-zA-Z'\[\](){}]+[\s,!.:;]*\((low|Low|LOW)\)`)
-	reUp := regexp.MustCompile(`[a-zA-Z\'[\](){}]+[\s,!.:;]*\((up|UP|Up)\)`)
-	reCapMany := regexp.MustCompile(`.*\((cap|Cap|CAP),\s(\d+)\)`)
-	reUpMany := regexp.MustCompile(`.*\((up|UP|Up),\s(\d+)\)`)
-	reLowMany := regexp.MustCompile(`.*\((low|Low|LOW),\s(\d+)\)`)
-	rePunc := regexp.MustCompile(`[\s^.?!]*[.,,,!,?,:;]\s*`)
-	rePunc2 := regexp.MustCompile(`[?!.]\s*[?!.]\s*[?!.]\s*`)
-	reQuotes := regexp.MustCompile(`'\s*[^']*\s*'`)
-	reAn := regexp.MustCompile(`\s[Aa]\s+\w\w+`)
-
-	result := setNums(reBin, str, 2)
-	result = setNums(reHex, result, 16)
-	result = setChars(reCap, result, "cap")
-	result = setChars(reLow, result, "low")
-	result = setChars(reUp, result, "up")
-	result = fixPunc(rePunc, result)
-	result = fixQuote(reQuotes, result)
-	result = fixAn(reAn, result)
-	result = setCharsMany(reUpMany, result, "up")
-	result = setCharsMany(reCapMany, result, "cap")
-	result = setCharsMany(reLowMany, result, "low")
-	result = fixPunc2(rePunc2, result)
-
+func emptyCheck(result string) string {
 	for i := 0; i < len(result); i++ {
 		if i == len(result)-1 {
 			break
@@ -268,6 +240,36 @@ func CorrectAll(str string) string {
 			}
 		}
 	}
+	return result
+}
+
+func CorrectAll(str string) string {
+	reHex := regexp.MustCompile(`\s+[a-fA-F0-9]+[\s,!.\[\]{}():;']*\(hex\)`)
+	reBin := regexp.MustCompile(`\s+[0-1]+[\s,!.\[\]{}():;']*\(bin\)`)
+	reCap := regexp.MustCompile(`[a-zA-Z'\[\](){}]+[\s,!.:;]*\((cap|Cap|CAP)\)`)
+	reLow := regexp.MustCompile(`[a-zA-Z'\[\](){}]+[\s,!.:;]*\((low|Low|LOW)\)`)
+	reUp := regexp.MustCompile(`[a-zA-Z\'[\](){}]+[\s,!.:;]*\((up|UP|Up)\)`)
+	reCapMany := regexp.MustCompile(`(.|\n)*\((cap|Cap|CAP),\s(\d+)\)`)
+	reUpMany := regexp.MustCompile(`(.|\n)*\((up|UP|Up),\s(\d+)\)`)
+	reLowMany := regexp.MustCompile(`(.|\n)*\((low|Low|LOW),\s(\d+)\)`)
+	rePunc := regexp.MustCompile(`[\s^.?!]*[.,,,!,?,:;]\s*`)
+	rePunc2 := regexp.MustCompile(`[?!.]\s*[?!.]\s*[?!.]\s*`)
+	reQuotes := regexp.MustCompile(`'\s*[^']*\s*'`)
+	reAn := regexp.MustCompile(`\s[Aa]\s+\w\w+`)
+
+	result := setNums(reBin, str, 2)
+	result = setNums(reHex, result, 16)
+	result = setChars(reCap, result, "cap")
+	result = setChars(reLow, result, "low")
+	result = setChars(reUp, result, "up")
+	result = fixPunc(rePunc, result)
+	result = fixQuote(reQuotes, result)
+	result = fixAn(reAn, result)
+	result = setCharsMany(reUpMany, result, "up")
+	result = setCharsMany(reCapMany, result, "cap")
+	result = setCharsMany(reLowMany, result, "low")
+	result = fixPunc2(rePunc2, result)
+	result = emptyCheck(result)
 
 	return result
 }
