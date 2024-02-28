@@ -15,19 +15,12 @@ func setNums(re *regexp.Regexp, str string, numTypeInt int) string {
 		if arr[0] == '\n' {
 			connector = "\n"
 		}
-		last6Runes := len(arr) - 5
-		arr = arr[:last6Runes]
 		arr = strings.TrimSpace(arr)
-		arr = strings.Trim(arr, ",")
-		arr = strings.Trim(arr, ".")
-		arr = strings.Trim(arr, "(")
-		arr = strings.Trim(arr, ")")
-		arr = strings.Trim(arr, "[")
-		arr = strings.Trim(arr, "]")
-		arr = strings.Trim(arr, "!")
-		arr = strings.Trim(arr, ":")
-		arr = strings.Trim(arr, ";")
-		arr = strings.Trim(arr, "'")
+		for i, v := range arr {
+			if v == '(' {
+				arr = arr[:i-1]
+			}
+		}
 		decDigit, _ := strconv.ParseInt(arr, numTypeInt, 64)
 		result := strconv.Itoa(int(decDigit))
 		return connector + result
