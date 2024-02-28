@@ -5,16 +5,9 @@ import (
 	"reloaded"
 )
 
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
-
 func main() {
 	args := os.Args[1:]
-	primaryStr, _ := os.ReadFile("../texts/" + args[0])
-	secondaryStr := reloaded.CorrectAll(string(primaryStr))
-	err := os.WriteFile("../texts/"+args[1], []byte(secondaryStr), 0644)
-	check(err)
+	str, _ := os.ReadFile("../texts/" + args[0])
+	result := reloaded.CorrectAll(string(str))
+	os.WriteFile("../texts/"+args[1], []byte(result), 0644)
 }

@@ -54,8 +54,26 @@ func setChars(re *regexp.Regexp, str string, charType string) string {
 
 func fixPunc(re *regexp.Regexp, str string) string {
 	return re.ReplaceAllStringFunc(str, func(arr string) string {
-		arr = strings.TrimSpace(arr)
+		arr = theTrimSpace(arr)
 		return arr + " "
+	})
+}
+
+func theTrimSpace(str string) string {
+	result := ""
+	for _, v := range str {
+		if v == ' ' || v == '\n' {
+			continue
+		}
+		result += string(v)
+	}
+	return result
+}
+
+func fixPunc2(re *regexp.Regexp, str string) string {
+	return re.ReplaceAllStringFunc(str, func(arr string) string {
+		result := theTrimSpace(arr)
+		return result + " "
 	})
 }
 
@@ -216,6 +234,7 @@ func CorrectAll(str string) string {
 	reUpMany := regexp.MustCompile(`.*\(up,\s(\d+)\)`)
 	reLowMany := regexp.MustCompile(`.*\(low,\s(\d+)\)`)
 	rePunc := regexp.MustCompile(`[\s^.?!]*[.,,,!,?,:;]\s*`)
+	rePunc2 := regexp.MustCompile(`[?!.]\s*[?!.]\s*[?!.]\s*`)
 	reQuotes := regexp.MustCompile(`'\s*[^']*\s*'`)
 	reAn := regexp.MustCompile(`\s[Aa]\s+\w\w+`)
 
@@ -230,6 +249,7 @@ func CorrectAll(str string) string {
 	result = setCharsMany(reUpMany, result, "up")
 	result = setCharsMany(reCapMany, result, "cap")
 	result = setCharsMany(reLowMany, result, "low")
+	result = fixPunc2(rePunc2, result)
 
 	return result
 }
