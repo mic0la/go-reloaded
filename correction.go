@@ -146,6 +146,7 @@ func setCharsMany(re *regexp.Regexp, str string, charType string) string {
 		var i int
 		var cutHere int
 		outOfRange := false
+		isCaseUp := 0
 
 		for i = len(arr) - 1; i >= 0; i-- {
 			if arr[i] == ' ' || arr[i] == '\n' {
@@ -185,9 +186,9 @@ func setCharsMany(re *regexp.Regexp, str string, charType string) string {
 				break
 			}
 		}
-
 		switch charType {
 		case "up":
+			isCaseUp++
 			arrToChange = strings.ToUpper(arrToChange)
 		case "cap":
 			arrToChange = strings.ToLower(arrToChange)
@@ -216,7 +217,7 @@ func setCharsMany(re *regexp.Regexp, str string, charType string) string {
 			}
 		}
 		if outOfRange {
-			return arrToChange[:len(arrToChange)-9]
+			return arrToChange[:len(arrToChange)-9+isCaseUp]
 		}
 		return arr[:i+1] + arrToChange[:cutHere-1]
 	})
@@ -243,12 +244,134 @@ func emptyCheck(result string) string {
 	return result
 }
 
+func multipleChars(re *regexp.Regexp, str string, reLowMany *regexp.Regexp, reUpMany *regexp.Regexp, reCapMany *regexp.Regexp) string {
+	return re.ReplaceAllStringFunc(str, func(arr string) string {
+		isCaseUp := 0
+		count := 0
+		twoFuncsInd := 0
+		threeFuncsInd := 0
+		result := ""
+		for i := len(arr) - 1; i >= 0; i-- {
+			if arr[i] == '(' {
+				if arr[i+1:i+4] == "cap" || arr[i+1:i+4] == "low" || arr[i+1:i+3] == "up" {
+					count++
+					if count == 3 {
+						if unicode.IsDigit(rune(arr[i+7])) || unicode.IsDigit(rune(arr[i+6])) {
+							threeFuncsInd = i
+							break
+						}
+						count--
+					}
+					if twoFuncsInd == 0 && count == 2 {
+						twoFuncsInd = i
+					}
+				}
+			}
+		}
+		switch count {
+		case 3:
+			switch arr[threeFuncsInd+1] {
+			case 'l':
+				result = setCharsMany(reLowMany, arr[:threeFuncsInd+8], "low")
+			case 'L':
+				result = setCharsMany(reLowMany, arr[:threeFuncsInd+8], "low")
+			case 'u':
+				isCaseUp--
+				result = setCharsMany(reUpMany, arr[:threeFuncsInd+8], "up")
+			case 'U':
+				isCaseUp--
+				result = setCharsMany(reUpMany, arr[:threeFuncsInd+8], "up")
+			case 'c':
+				result = setCharsMany(reCapMany, arr[:threeFuncsInd+8], "cap")
+			case 'C':
+				result = setCharsMany(reCapMany, arr[:threeFuncsInd+8], "cap")
+			}
+			arr = arr[:threeFuncsInd] + arr[threeFuncsInd+9+isCaseUp:]
+			if isCaseUp != 0 {
+				isCaseUp = 0
+			}
+			switch arr[threeFuncsInd+1] {
+			case 'l':
+				result = setCharsMany(reLowMany, result+arr[threeFuncsInd:threeFuncsInd+8], "low")
+			case 'L':
+				result = setCharsMany(reLowMany, result+arr[threeFuncsInd:threeFuncsInd+8], "low")
+			case 'u':
+				isCaseUp--
+				result = setCharsMany(reUpMany, result+arr[threeFuncsInd:threeFuncsInd+8], "up")
+			case 'U':
+				isCaseUp--
+				result = setCharsMany(reUpMany, result+arr[threeFuncsInd:threeFuncsInd+8], "up")
+			case 'c':
+				result = setCharsMany(reCapMany, result+arr[threeFuncsInd:threeFuncsInd+8], "cap")
+			case 'C':
+				result = setCharsMany(reCapMany, result+arr[threeFuncsInd:threeFuncsInd+8], "cap")
+			}
+			arr = arr[:threeFuncsInd] + arr[threeFuncsInd+9+isCaseUp:]
+			if isCaseUp != 0 {
+				isCaseUp = 0
+			}
+			switch arr[threeFuncsInd+1] {
+			case 'l':
+				result = setCharsMany(reLowMany, result+arr[threeFuncsInd:threeFuncsInd+8], "low")
+			case 'L':
+				result = setCharsMany(reLowMany, result+arr[threeFuncsInd:threeFuncsInd+8], "low")
+			case 'u':
+				isCaseUp--
+				result = setCharsMany(reUpMany, result+arr[threeFuncsInd:threeFuncsInd+8], "up")
+			case 'U':
+				isCaseUp--
+				result = setCharsMany(reUpMany, result+arr[threeFuncsInd:threeFuncsInd+8], "up")
+			case 'c':
+				result = setCharsMany(reCapMany, result+arr[threeFuncsInd:threeFuncsInd+8], "cap")
+			case 'C':
+				result = setCharsMany(reCapMany, result+arr[threeFuncsInd:threeFuncsInd+8], "cap")
+			}
+		case 2:
+			switch arr[twoFuncsInd+1] {
+			case 'l':
+				result = setCharsMany(reLowMany, arr[:twoFuncsInd+8], "low")
+			case 'L':
+				result = setCharsMany(reLowMany, arr[:twoFuncsInd+8], "low")
+			case 'u':
+				isCaseUp--
+				result = setCharsMany(reUpMany, arr[:twoFuncsInd+8], "up")
+			case 'U':
+				isCaseUp--
+				result = setCharsMany(reUpMany, arr[:twoFuncsInd+8], "up")
+			case 'c':
+				result = setCharsMany(reCapMany, arr[:twoFuncsInd+8], "cap")
+			case 'C':
+				result = setCharsMany(reCapMany, arr[:twoFuncsInd+8], "cap")
+			}
+			arr = arr[:threeFuncsInd] + arr[threeFuncsInd+9+isCaseUp:]
+			switch arr[twoFuncsInd+1] {
+			case 'l':
+				result = setCharsMany(reLowMany, result+arr[twoFuncsInd:twoFuncsInd+8], "low")
+			case 'L':
+				result = setCharsMany(reLowMany, result+arr[twoFuncsInd:twoFuncsInd+8], "low")
+			case 'u':
+				isCaseUp--
+				result = setCharsMany(reUpMany, result+arr[twoFuncsInd:twoFuncsInd+8], "up")
+			case 'U':
+				isCaseUp--
+				result = setCharsMany(reUpMany, result+arr[twoFuncsInd:twoFuncsInd+8], "up")
+			case 'c':
+				result = setCharsMany(reCapMany, result+arr[twoFuncsInd:twoFuncsInd+8], "cap")
+			case 'C':
+				result = setCharsMany(reCapMany, result+arr[twoFuncsInd:twoFuncsInd+8], "cap")
+			}
+		}
+		return result
+	})
+}
+
 func CorrectAll(str string) string {
 	reHex := regexp.MustCompile(`\s+[a-fA-F0-9]+[\s,!.\[\]{}():;']*\(hex\)`)
 	reBin := regexp.MustCompile(`\s+[0-1]+[\s,!.\[\]{}():;']*\(bin\)`)
 	reCap := regexp.MustCompile(`[a-zA-Z'\[\](){}]+[\s,!.:;]*\((cap|Cap|CAP)\)`)
 	reLow := regexp.MustCompile(`[a-zA-Z'\[\](){}]+[\s,!.:;]*\((low|Low|LOW)\)`)
 	reUp := regexp.MustCompile(`[a-zA-Z\'[\](){}]+[\s,!.:;]*\((up|UP|Up)\)`)
+	reMultipleChars := regexp.MustCompile(`.*(\((cap|CAP|Cap|UP|up|Up|Low|LOW|low),\s(\d+)\)\s*){2,}`)
 	reCapMany := regexp.MustCompile(`(.|\n)*\((cap|Cap|CAP),\s(\d+)\)`)
 	reUpMany := regexp.MustCompile(`(.|\n)*\((up|UP|Up),\s(\d+)\)`)
 	reLowMany := regexp.MustCompile(`(.|\n)*\((low|Low|LOW),\s(\d+)\)`)
@@ -257,7 +380,8 @@ func CorrectAll(str string) string {
 	reQuotes := regexp.MustCompile(`'\s*[^']*\s*'`)
 	reAn := regexp.MustCompile(`\s[Aa]\s+\w\w+`)
 
-	result := setNums(reBin, str, 2)
+	result := multipleChars(reMultipleChars, str, reLowMany, reUpMany, reCapMany)
+	result = setNums(reBin, result, 2)
 	result = setNums(reHex, result, 16)
 	result = setChars(reCap, result, "cap")
 	result = setChars(reLow, result, "low")
