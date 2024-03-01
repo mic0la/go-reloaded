@@ -427,13 +427,13 @@ func CorrectAll(str string) string {
 	result = fixPunc(rePunc, result)
 	result = fixQuote(reQuotes, result)
 	result = fixAn(reAn, result)
-	for i := 0; i < upCount; i++ {
+	for i := 0; i <= upCount; i++ {
 		result = setCharsMany(reUpMany, result, "up")
 	}
-	for j := 0; j < capCount; j++ {
+	for j := 0; j <= capCount; j++ {
 		result = setCharsMany(reCapMany, result, "cap")
 	}
-	for k := 0; k < lowCount; k++ {
+	for k := 0; k <= lowCount; k++ {
 		result = setCharsMany(reLowMany, result, "low")
 	}
 	result = fixPunc2(rePunc2, result)
