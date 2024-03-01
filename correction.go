@@ -246,6 +246,15 @@ func emptyCheck(result string) string {
 
 func multipleChars(re *regexp.Regexp, str string, reLowMany *regexp.Regexp, reUpMany *regexp.Regexp, reCapMany *regexp.Regexp) string {
 	return re.ReplaceAllStringFunc(str, func(arr string) string {
+		connector := ""
+		for i := len(arr) - 1; i > len(arr)-10; i-- {
+			switch arr[i] {
+			case ' ':
+				connector = " " + connector
+			case '\n':
+				connector = "\n" + connector
+			}
+		}
 		isCaseUp := 0
 		count := 0
 		twoFuncsInd := 0
@@ -361,7 +370,7 @@ func multipleChars(re *regexp.Regexp, str string, reLowMany *regexp.Regexp, reUp
 				result = setCharsMany(reCapMany, result+arr[twoFuncsInd:twoFuncsInd+8], "cap")
 			}
 		}
-		return result
+		return result + connector
 	})
 }
 
@@ -380,6 +389,35 @@ func CorrectAll(str string) string {
 	reQuotes := regexp.MustCompile(`'\s*[^']*\s*'`)
 	reAn := regexp.MustCompile(`\s[Aa]\s+\w\w+`)
 
+	words := strings.Split(str, " ")
+	switch words[0] {
+	case "(low,":
+		str = str[9:]
+	case "(up,":
+		str = str[8:]
+	case "(cap,":
+		str = str[9:]
+	case "(low)":
+		str = str[9:]
+	case "(up)":
+		str = str[8:]
+	case "(cap)":
+		str = str[9:]
+	}
+	lowCount := 0
+	upCount := 0
+	capCount := 0
+	for _, v := range words {
+		switch v {
+		case "(low,":
+			lowCount++
+		case "(up,":
+			upCount++
+		case "(cap,":
+			capCount++
+		}
+	}
+
 	result := multipleChars(reMultipleChars, str, reLowMany, reUpMany, reCapMany)
 	result = setNums(reBin, result, 2)
 	result = setNums(reHex, result, 16)
@@ -389,9 +427,15 @@ func CorrectAll(str string) string {
 	result = fixPunc(rePunc, result)
 	result = fixQuote(reQuotes, result)
 	result = fixAn(reAn, result)
-	result = setCharsMany(reUpMany, result, "up")
-	result = setCharsMany(reCapMany, result, "cap")
-	result = setCharsMany(reLowMany, result, "low")
+	for i := 0; i < upCount; i++ {
+		result = setCharsMany(reUpMany, result, "up")
+	}
+	for j := 0; j < capCount; j++ {
+		result = setCharsMany(reCapMany, result, "cap")
+	}
+	for k := 0; k < lowCount; k++ {
+		result = setCharsMany(reLowMany, result, "low")
+	}
 	result = fixPunc2(rePunc2, result)
 	result = emptyCheck(result)
 
