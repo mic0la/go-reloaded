@@ -19,7 +19,7 @@ func SetCharsMany(re *regexp.Regexp, str string, charType string) string {
 		isCaseUp := 0
 
 		for i = len(arr) - 1; i >= 0; i-- {
-			if arr[i] == ' ' || arr[i] == '\n' {
+			if arr[i] == ' ' || arr[i] == '\n' || arr[i] == '\r' {
 				startFrom = i - 5
 				wordsToChange, _ = strconv.Atoi(arr[i+1 : len(arr)-1])
 				break
@@ -33,7 +33,7 @@ func SetCharsMany(re *regexp.Regexp, str string, charType string) string {
 			}
 		}
 		for i = startFrom; i > 0; i-- {
-			if arr[i] == ' ' {
+			if arr[i] == ' ' || arr[i] == '\n' || arr[i] == '\r' {
 				countSpace++
 				for i > 0 {
 					if unicode.IsLetter(rune(arr[i])) {

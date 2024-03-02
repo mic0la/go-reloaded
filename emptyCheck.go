@@ -9,11 +9,11 @@ func EmptyCheck(result string) string {
 			switch {
 			case result[i+1] == 'b' || result[i+1] == 'B':
 				if result[i+2] == 'i' || result[i+2] == 'I' {
-					result = result[:i] + result[i+5:]
+					result = result[:i-1] + result[i+5:]
 				}
 			case result[i+1] == 'h' || result[i+1] == 'H':
 				if result[i+2] == 'e' || result[i+2] == 'E' {
-					result = result[:i] + result[i+5:]
+					result = result[:i-1] + result[i+5:]
 				}
 			}
 		}

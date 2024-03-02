@@ -26,6 +26,9 @@ func SetChars(re *regexp.Regexp, str string, charType string) string {
 			arr = strings.ToUpper(arr)
 		}
 		// arr = caser.String(arr) //{without deprication}
+		if arr[len(arr)-1] == ' ' || arr[len(arr)-1] == '\n' || arr[len(arr)-1] == '\r' {
+			arr = arr[:len(arr)-1]
+		}
 		return arr
 	})
 }

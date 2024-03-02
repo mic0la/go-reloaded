@@ -4,15 +4,21 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"unicode"
 	// "golang.org/x/text/cases"
 	// "golang.org/x/text/language"
 )
 
 func setNums(re *regexp.Regexp, str string, numTypeInt int) string {
 	return re.ReplaceAllStringFunc(str, func(arr string) string {
-		connector := " "
-		if arr[0] == '\n' {
+		connector := ""
+		switch arr[0] {
+		case '\n':
 			connector = "\n"
+		case '\r':
+			connector = "\r"
+		case ' ':
+			connector = " "
 		}
 		arr = theTrimSpace(arr)
 		for i, v := range arr {
@@ -29,6 +35,7 @@ func setNums(re *regexp.Regexp, str string, numTypeInt int) string {
 func fixPunc(re *regexp.Regexp, str string) string {
 	return re.ReplaceAllStringFunc(str, func(arr string) string {
 		arr = theTrimSpace(arr)
+		arr = trimBaclSlashR(arr)
 		return arr + " "
 	})
 }
@@ -37,6 +44,17 @@ func theTrimSpace(str string) string {
 	result := ""
 	for _, v := range str {
 		if v == ' ' || v == '\n' {
+			continue
+		}
+		result += string(v)
+	}
+	return result
+}
+
+func trimBaclSlashR(str string) string {
+	result := ""
+	for _, v := range str {
+		if v == '\r' {
 			continue
 		}
 		result += string(v)
@@ -59,25 +77,35 @@ func fixQuote(re *regexp.Regexp, str string) string {
 }
 
 func headSpacesCut(str string) string {
-	if str[0] == ' ' {
+	if str[0] == ' ' || str[0] == '\n' || str[0] == '\r' {
 		return headSpacesCut(str[1:])
 	}
 	return str
 }
 
 func tailSpacesCut(str string) string {
-	if str[len(str)-1] == ' ' || str[len(str)-1] == '\n' {
+	if str[len(str)-1] == ' ' || str[len(str)-1] == '\n' || str[len(str)-1] == '\r' {
 		return tailSpacesCut(str[:len(str)-1])
 	}
 	return str
 }
 
+func cluMinus(re *regexp.Regexp, str string) string {
+	return re.ReplaceAllString(str, "")
+}
+
+func splitString(s string) []string {
+	return strings.FieldsFunc(s, func(r rune) bool {
+		return unicode.IsSpace(r)
+	})
+}
+
 func CorrectAll(str string) string {
-	reHex := regexp.MustCompile(`\s+[a-fA-F0-9]+[\s,!.\[\]{}():;']*\(hex\)`)
-	reBin := regexp.MustCompile(`\s+[0-1]+[\s,!.\[\]{}():;']*\(bin\)`)
-	reCap := regexp.MustCompile(`[a-zA-Z'\[\](){}]+[\s,!.:;]*\((cap|Cap|CAP)\)`)
-	reLow := regexp.MustCompile(`[a-zA-Z'\[\](){}]+[\s,!.:;]*\((low|Low|LOW)\)`)
-	reUp := regexp.MustCompile(`[a-zA-Z\'[\](){}]+[\s,!.:;]*\((up|UP|Up)\)`)
+	reHex := regexp.MustCompile(`\b[ ]*[a-fA-F0-9]+[\s,!.\[\]{}():;']*\(hex\)`)
+	reBin := regexp.MustCompile(`\b[ ]*[0-1]+[\s,!.\[\]{}():;']*\(bin\)`)
+	reCap := regexp.MustCompile(`[\w'\[\](){}]+[\s,!'.:;]*\((cap|Cap|CAP)\)`)
+	reLow := regexp.MustCompile(`[\w'\[\](){}]+[\s,!'.:;]*\((low|Low|LOW)\)`)
+	reUp := regexp.MustCompile(`[\w\'[\](){}]+[\s,!'.:;]*\((up|UP|Up)\)`)
 	reMultipleChars := regexp.MustCompile(`.*(\((cap|CAP|Cap|UP|up|Up|Low|LOW|low),\s(\d+)\)\s*){2,}`)
 	reCapMany := regexp.MustCompile(`(.|\n)*\((cap|Cap|CAP),\s(\d+)\)`)
 	reUpMany := regexp.MustCompile(`(.|\n)*\((up|UP|Up),\s(\d+)\)`)
@@ -86,9 +114,9 @@ func CorrectAll(str string) string {
 	rePunc2 := regexp.MustCompile(`[?!.]\s*[?!.]\s*[?!.]\s*`)
 	reQuotes := regexp.MustCompile(`'\s*[^']*\s*'`)
 	reAn := regexp.MustCompile(`\s[Aa]\s+\w\w+`)
-	//reCluMinus := regexp.MustCompile(`((cap|low|up),\s*-(\d+)\)`)
+	reCluMinus := regexp.MustCompile(`\s{0,1}\((cap|low|up),\s*-(\d+)\)`)
 
-	words := strings.Split(str, " ")
+	words := splitString(str)
 	switch words[0] {
 	case "(low,":
 		str = str[9:]
@@ -97,11 +125,11 @@ func CorrectAll(str string) string {
 	case "(cap,":
 		str = str[9:]
 	case "(low)":
-		str = str[9:]
+		str = str[6:]
 	case "(up)":
-		str = str[8:]
+		str = str[5:]
 	case "(cap)":
-		str = str[9:]
+		str = str[6:]
 	}
 	lowCount := 0
 	upCount := 0
@@ -118,6 +146,7 @@ func CorrectAll(str string) string {
 	}
 
 	result := MultipleChars(reMultipleChars, str, reLowMany, reUpMany, reCapMany)
+	result = cluMinus(reCluMinus, result)
 	result = setNums(reBin, result, 2)
 	result = setNums(reHex, result, 16)
 	result = SetChars(reCap, result, "cap")
