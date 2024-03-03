@@ -113,7 +113,7 @@ func MultipleChars(re *regexp.Regexp, str string, reLowMany *regexp.Regexp, reUp
 			case 'C':
 				result = SetCharsMany(reCapMany, arr[:twoFuncsInd+8], "cap")
 			}
-			arr = arr[:threeFuncsInd] + arr[threeFuncsInd+9+isCaseUp:]
+			arr = arr[:twoFuncsInd] + arr[twoFuncsInd+9+isCaseUp:]
 			switch arr[twoFuncsInd+1] {
 			case 'l':
 				result = SetCharsMany(reLowMany, result+arr[twoFuncsInd:twoFuncsInd+8], "low")

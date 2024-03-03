@@ -47,9 +47,10 @@ func fixPunc2(re *regexp.Regexp, str string) string {
 
 func fixQuote(re *regexp.Regexp, str string) string {
 	return re.ReplaceAllStringFunc(str, func(arr string) string {
+		connector := string(arr[0])
 		arr = headSpacesCut(arr)
 		headCuttedStr := headSpacesCut(arr[1:])
-		return "'" + tailSpacesCut(headCuttedStr[:len(headCuttedStr)-1]) + "'"
+		return connector + "'" + tailSpacesCut(headCuttedStr[:len(headCuttedStr)-1]) + "'"
 	})
 }
 
@@ -77,6 +78,12 @@ func splitString(s string) []string {
 	})
 }
 
+func fixQuoteEnd(re *regexp.Regexp, str string) string {
+	return re.ReplaceAllStringFunc(str, func(arr string) string {
+		return string(arr[0]) + string(arr[2])
+	})
+}
+
 func CorrectAll(str string) string {
 	reHex := regexp.MustCompile(`\b[ ]*[a-fA-F0-9]+[\s,!.\[\]{}():;']*\(hex\)`)
 	reBin := regexp.MustCompile(`\b[ ]*[0-1]+[\s,!.\[\]{}():;']*\(bin\)`)
@@ -92,6 +99,7 @@ func CorrectAll(str string) string {
 	reQuotes := regexp.MustCompile(`\s+'\s*[^']*\s*'`)
 	reAn := regexp.MustCompile(`\s[Aa]\s+\w\w+`)
 	reCluMinus := regexp.MustCompile(`\s{0,1}\((cap|low|up),\s*-(\d+)\)`)
+	reQuoteEnd := regexp.MustCompile(`[!.,?]\s'`)
 
 	words := splitString(str)
 	switch words[0] {
@@ -152,6 +160,7 @@ func CorrectAll(str string) string {
 	result = SetChars(reUp, result, "up")
 	result = fixQuote(reQuotes, result)
 	result = fixPunc(rePunc, result)
+	result = fixQuoteEnd(reQuoteEnd, result)
 	result = FixAn(reAn, result)
 	for i := 0; i <= upManyCount; i++ {
 		result = SetCharsMany(reUpMany, result, "up")
