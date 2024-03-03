@@ -2,35 +2,11 @@ package reloaded
 
 import (
 	"regexp"
-	"strconv"
 	"strings"
 	"unicode"
 	// "golang.org/x/text/cases"
 	// "golang.org/x/text/language"
 )
-
-func setNums(re *regexp.Regexp, str string, numTypeInt int) string {
-	return re.ReplaceAllStringFunc(str, func(arr string) string {
-		connector := ""
-		switch arr[0] {
-		case '\n':
-			connector = "\n"
-		case '\r':
-			connector = "\r"
-		case ' ':
-			connector = " "
-		}
-		arr = theTrimSpace(arr)
-		for i, v := range arr {
-			if v == '(' {
-				arr = arr[:i]
-			}
-		}
-		decDigit, _ := strconv.ParseInt(arr, numTypeInt, 64)
-		result := strconv.Itoa(int(decDigit))
-		return connector + result
-	})
-}
 
 func fixPunc(re *regexp.Regexp, str string) string {
 	return re.ReplaceAllStringFunc(str, func(arr string) string {
@@ -71,6 +47,7 @@ func fixPunc2(re *regexp.Regexp, str string) string {
 
 func fixQuote(re *regexp.Regexp, str string) string {
 	return re.ReplaceAllStringFunc(str, func(arr string) string {
+		arr = headSpacesCut(arr)
 		headCuttedStr := headSpacesCut(arr[1:])
 		return "'" + tailSpacesCut(headCuttedStr[:len(headCuttedStr)-1]) + "'"
 	})
@@ -112,7 +89,7 @@ func CorrectAll(str string) string {
 	reLowMany := regexp.MustCompile(`(.|\n)*\((low|Low|LOW),\s(\d+)\)`)
 	rePunc := regexp.MustCompile(`[\s^.?!]*[.,,,!,?,:;]\s*`)
 	rePunc2 := regexp.MustCompile(`[?!.]\s*[?!.]\s*[?!.]\s*`)
-	reQuotes := regexp.MustCompile(`'\s*[^']*\s*'`)
+	reQuotes := regexp.MustCompile(`\s+'\s*[^']*\s*'`)
 	reAn := regexp.MustCompile(`\s[Aa]\s+\w\w+`)
 	reCluMinus := regexp.MustCompile(`\s{0,1}\((cap|low|up),\s*-(\d+)\)`)
 
@@ -159,8 +136,8 @@ func CorrectAll(str string) string {
 	}
 	result := MultipleChars(reMultipleChars, str, reLowMany, reUpMany, reCapMany)
 	result = cluMinus(reCluMinus, result)
-	result = setNums(reBin, result, 2)
-	result = setNums(reHex, result, 16)
+	result = SetNums(reBin, result, 2)
+	result = SetNums(reHex, result, 16)
 	for a := 0; a <= upCount; a++ {
 		result = SetChars(reUp, result, "up")
 	}
@@ -173,8 +150,8 @@ func CorrectAll(str string) string {
 	result = SetChars(reCap, result, "cap")
 	result = SetChars(reLow, result, "low")
 	result = SetChars(reUp, result, "up")
-	result = fixPunc(rePunc, result)
 	result = fixQuote(reQuotes, result)
+	result = fixPunc(rePunc, result)
 	result = FixAn(reAn, result)
 	for i := 0; i <= upManyCount; i++ {
 		result = SetCharsMany(reUpMany, result, "up")
@@ -185,8 +162,6 @@ func CorrectAll(str string) string {
 	for k := 0; k <= lowManyCount; k++ {
 		result = SetCharsMany(reLowMany, result, "low")
 	}
-	result = fixPunc2(rePunc2, result)
-	result = EmptyCheck(result)
 	for a := 0; a <= upCount; a++ {
 		result = SetChars(reUp, result, "up")
 	}
@@ -196,6 +171,17 @@ func CorrectAll(str string) string {
 	for a := 0; a <= capCount; a++ {
 		result = SetChars(reCap, result, "cap")
 	}
+	for a := 0; a <= upCount; a++ {
+		result = SetChars(reUp, result, "up")
+	}
+	for a := 0; a <= lowCount; a++ {
+		result = SetChars(reLow, result, "low")
+	}
+	for a := 0; a <= capCount; a++ {
+		result = SetChars(reCap, result, "cap")
+	}
+	result = fixPunc2(rePunc2, result)
+	result = EmptyCheck(result)
 
 	return result
 }

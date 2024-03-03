@@ -17,6 +17,10 @@ func main() {
 		fmt.Println("invalid input")
 		return
 	}
+	if len(str) == 0 {
+		os.WriteFile("../texts/"+args[1], []byte{}, 0644)
+		return
+	}
 	result := reloaded.CorrectAll(string(str))
 	os.WriteFile("../texts/"+args[1], []byte(result), 0644)
 }

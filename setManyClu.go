@@ -58,6 +58,7 @@ func SetCharsMany(re *regexp.Regexp, str string, charType string) string {
 		}
 		switch charType {
 		case "up":
+			// fmt.Println("found up:", arrToChange)
 			isCaseUp++
 			arrToChange = strings.ToUpper(arrToChange)
 		case "cap":
@@ -87,7 +88,7 @@ func SetCharsMany(re *regexp.Regexp, str string, charType string) string {
 			}
 		}
 		if outOfRange {
-			return arrToChange[:len(arrToChange)-9+isCaseUp]
+			return arrToChange[:len(arrToChange)-10+isCaseUp]
 		}
 		return arr[:i+1] + arrToChange[:cutHere-1]
 	})
