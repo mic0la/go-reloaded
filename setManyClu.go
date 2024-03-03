@@ -25,7 +25,6 @@ func SetCharsMany(re *regexp.Regexp, str string, charType string) string {
 				break
 			}
 		}
-
 		for i = startFrom; i >= 0; i-- {
 			if unicode.IsLetter(rune(arr[i])) {
 				startFrom = i
@@ -88,7 +87,7 @@ func SetCharsMany(re *regexp.Regexp, str string, charType string) string {
 			}
 		}
 		if outOfRange {
-			return arrToChange[:len(arrToChange)-9+isCaseUp]
+			return arrToChange[:len(arrToChange)-10+isCaseUp]
 		}
 		return arr[:i+1] + arrToChange[:cutHere]
 	})

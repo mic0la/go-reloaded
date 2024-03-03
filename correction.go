@@ -11,7 +11,7 @@ import (
 func fixPunc(re *regexp.Regexp, str string) string {
 	return re.ReplaceAllStringFunc(str, func(arr string) string {
 		arr = theTrimSpace(arr)
-		arr = trimBaclSlashR(arr)
+		arr = trimBackSlashR(arr)
 		return arr + " "
 	})
 }
@@ -27,7 +27,7 @@ func theTrimSpace(str string) string {
 	return result
 }
 
-func trimBaclSlashR(str string) string {
+func trimBackSlashR(str string) string {
 	result := ""
 	for _, v := range str {
 		if v == '\r' {
@@ -47,7 +47,10 @@ func fixPunc2(re *regexp.Regexp, str string) string {
 
 func fixQuote(re *regexp.Regexp, str string) string {
 	return re.ReplaceAllStringFunc(str, func(arr string) string {
-		connector := string(arr[0])
+		connector := ""
+		if arr[0] != '\'' {
+			connector = string(arr[0])
+		}
 		arr = headSpacesCut(arr)
 		headCuttedStr := headSpacesCut(arr[1:])
 		return connector + "'" + tailSpacesCut(headCuttedStr[:len(headCuttedStr)-1]) + "'"
@@ -87,16 +90,16 @@ func fixQuoteEnd(re *regexp.Regexp, str string) string {
 func CorrectAll(str string) string {
 	reHex := regexp.MustCompile(`\b[ ]*[a-fA-F0-9]+[\s,!.\[\]{}():;']*\(hex\)`)
 	reBin := regexp.MustCompile(`\b[ ]*[0-1]+[\s,!.\[\]{}():;']*\(bin\)`)
-	reCap := regexp.MustCompile(`[\w'\[\]{}]+[\s,!'.:;]*\((cap|Cap|CAP)\)`)
-	reLow := regexp.MustCompile(`[\w'\[\]{}]+[\s,!'.:;]*\((low|Low|LOW)\)`)
-	reUp := regexp.MustCompile(`[\w\'[\]{}]+[\s,!'.:;]*\((up|UP|Up)\)`)
+	reCap := regexp.MustCompile(`[\w'\[\](){}]+[\s,!'.:;]*\((cap|Cap|CAP)\)`)
+	reLow := regexp.MustCompile(`[\w'\[\](){}]+[\s,!'.:;]*\((low|Low|LOW)\)`)
+	reUp := regexp.MustCompile(`[\w\'[\](){}]+[\s,!'.:;]*\((up|UP|Up)\)`)
 	reMultipleChars := regexp.MustCompile(`.*(\((cap|CAP|Cap|UP|up|Up|Low|LOW|low),\s(\d+)\)\s*){2,}`)
 	reCapMany := regexp.MustCompile(`(.|\n)*\((cap|Cap|CAP),\s(\d+)\)`)
 	reUpMany := regexp.MustCompile(`(.|\n)*\((up|UP|Up),\s(\d+)\)`)
 	reLowMany := regexp.MustCompile(`(.|\n)*\((low|Low|LOW),\s(\d+)\)`)
 	rePunc := regexp.MustCompile(`[\s^.?!]*[.,,,!,?,:;]\s*`)
 	rePunc2 := regexp.MustCompile(`[?!.]\s*[?!.]\s*[?!.]\s*`)
-	reQuotes := regexp.MustCompile(`\s+'\s*[^']*\s*'`)
+	reQuotes := regexp.MustCompile(`(\s|)+'\s*[^']*\s*'`)
 	reAn := regexp.MustCompile(`\s[Aa]\s+\w\w+`)
 	reCluMinus := regexp.MustCompile(`\s{0,1}\((cap|low|up),\s*-(\d+)\)`)
 	reQuoteEnd := regexp.MustCompile(`[!.,?]\s'`)
