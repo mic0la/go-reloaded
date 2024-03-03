@@ -103,9 +103,9 @@ func splitString(s string) []string {
 func CorrectAll(str string) string {
 	reHex := regexp.MustCompile(`\b[ ]*[a-fA-F0-9]+[\s,!.\[\]{}():;']*\(hex\)`)
 	reBin := regexp.MustCompile(`\b[ ]*[0-1]+[\s,!.\[\]{}():;']*\(bin\)`)
-	reCap := regexp.MustCompile(`[\w'\[\](){}]+[\s,!'.:;]*\((cap|Cap|CAP)\)`)
-	reLow := regexp.MustCompile(`[\w'\[\](){}]+[\s,!'.:;]*\((low|Low|LOW)\)`)
-	reUp := regexp.MustCompile(`[\w\'[\](){}]+[\s,!'.:;]*\((up|UP|Up)\)`)
+	reCap := regexp.MustCompile(`[\w'\[\]{}]+[\s,!'.:;]*\((cap|Cap|CAP)\)`)
+	reLow := regexp.MustCompile(`[\w'\[\]{}]+[\s,!'.:;]*\((low|Low|LOW)\)`)
+	reUp := regexp.MustCompile(`[\w\'[\]{}]+[\s,!'.:;]*\((up|UP|Up)\)`)
 	reMultipleChars := regexp.MustCompile(`.*(\((cap|CAP|Cap|UP|up|Up|Low|LOW|low),\s(\d+)\)\s*){2,}`)
 	reCapMany := regexp.MustCompile(`(.|\n)*\((cap|Cap|CAP),\s(\d+)\)`)
 	reUpMany := regexp.MustCompile(`(.|\n)*\((up|UP|Up),\s(\d+)\)`)
@@ -131,41 +131,71 @@ func CorrectAll(str string) string {
 	case "(cap)":
 		str = str[6:]
 	}
+	lowManyCount := 0
+	upManyCount := 0
+	capManyCount := 0
+	for _, v := range words {
+		switch v {
+		case "(low,":
+			lowManyCount++
+		case "(up,":
+			upManyCount++
+		case "(cap,":
+			capManyCount++
+		}
+	}
 	lowCount := 0
 	upCount := 0
 	capCount := 0
 	for _, v := range words {
 		switch v {
-		case "(low,":
+		case "(low)":
 			lowCount++
-		case "(up,":
+		case "(up)":
 			upCount++
-		case "(cap,":
+		case "(cap)":
 			capCount++
 		}
 	}
-
 	result := MultipleChars(reMultipleChars, str, reLowMany, reUpMany, reCapMany)
 	result = cluMinus(reCluMinus, result)
 	result = setNums(reBin, result, 2)
 	result = setNums(reHex, result, 16)
+	for a := 0; a <= upCount; a++ {
+		result = SetChars(reUp, result, "up")
+	}
+	for a := 0; a <= lowCount; a++ {
+		result = SetChars(reLow, result, "low")
+	}
+	for a := 0; a <= capCount; a++ {
+		result = SetChars(reCap, result, "cap")
+	}
 	result = SetChars(reCap, result, "cap")
 	result = SetChars(reLow, result, "low")
 	result = SetChars(reUp, result, "up")
 	result = fixPunc(rePunc, result)
 	result = fixQuote(reQuotes, result)
 	result = FixAn(reAn, result)
-	for i := 0; i <= upCount; i++ {
+	for i := 0; i <= upManyCount; i++ {
 		result = SetCharsMany(reUpMany, result, "up")
 	}
-	for j := 0; j <= capCount; j++ {
+	for j := 0; j <= capManyCount; j++ {
 		result = SetCharsMany(reCapMany, result, "cap")
 	}
-	for k := 0; k <= lowCount; k++ {
+	for k := 0; k <= lowManyCount; k++ {
 		result = SetCharsMany(reLowMany, result, "low")
 	}
 	result = fixPunc2(rePunc2, result)
 	result = EmptyCheck(result)
+	for a := 0; a <= upCount; a++ {
+		result = SetChars(reUp, result, "up")
+	}
+	for a := 0; a <= lowCount; a++ {
+		result = SetChars(reLow, result, "low")
+	}
+	for a := 0; a <= capCount; a++ {
+		result = SetChars(reCap, result, "cap")
+	}
 
 	return result
 }
