@@ -26,7 +26,7 @@ func MultipleChars(re *regexp.Regexp, str string, reLowMany *regexp.Regexp, reUp
 				if arr[i+1:i+4] == "cap" || arr[i+1:i+4] == "low" || arr[i+1:i+3] == "up" {
 					count++
 					if count == 3 {
-						if unicode.IsDigit(rune(arr[i+7])) || unicode.IsDigit(rune(arr[i+6])) {
+						if unicode.IsDigit(rune(arr[i+7])) || unicode.IsDigit(rune(arr[i+6])) || unicode.IsDigit(rune(arr[i+5])) {
 							threeFuncsInd = i
 							break
 						}
