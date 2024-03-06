@@ -47,13 +47,14 @@ func fixPunc2(re *regexp.Regexp, str string) string {
 
 func fixQuote(re *regexp.Regexp, str string) string {
 	return re.ReplaceAllStringFunc(str, func(arr string) string {
+		quotesAfter := ""
 		connector := ""
 		if arr[0] != '\'' {
 			connector = string(arr[0])
 		}
 		arr = headSpacesCut(arr)
 		headCuttedStr := headSpacesCut(arr[1:])
-		return connector + "'" + tailSpacesCut(headCuttedStr[:len(headCuttedStr)-1]) + "'"
+		return connector + "'" + tailSpacesCut(headCuttedStr[:len(headCuttedStr)-1], quotesAfter) + "'"
 	})
 }
 
@@ -64,11 +65,14 @@ func headSpacesCut(str string) string {
 	return str
 }
 
-func tailSpacesCut(str string) string {
-	if str[len(str)-1] == ' ' || str[len(str)-1] == '\n' || str[len(str)-1] == '\r' {
-		return tailSpacesCut(str[:len(str)-1])
+func tailSpacesCut(str, quotesAfter string) string {
+	if str[len(str)-1] == '\'' {
+		return tailSpacesCut(str[:len(str)-1], quotesAfter+"'")
 	}
-	return str
+	if str[len(str)-1] == ' ' || str[len(str)-1] == '\n' || str[len(str)-1] == '\r' {
+		return tailSpacesCut(str[:len(str)-1], quotesAfter)
+	}
+	return str + quotesAfter
 }
 
 func cluMinus(re *regexp.Regexp, str string) string {
@@ -99,7 +103,7 @@ func CorrectAll(str string) string {
 	reLowMany := regexp.MustCompile(`(.|\n)*\((low|Low|LOW),\s(\d+)\)`)
 	rePunc := regexp.MustCompile(`[\s^.?!]*[.,,,!,?,:;]\s*`)
 	rePunc2 := regexp.MustCompile(`[?!.]\s*[?!.]\s*[?!.]\s*`)
-	reQuotes := regexp.MustCompile(`(\s|)+'\s*[^']*\s*'`)
+	reQuotes := regexp.MustCompile(`(\s)+'\s*.*\s*'`)
 	reAn := regexp.MustCompile(`\s[Aa]\s+\w\w+`)
 	reCluMinus := regexp.MustCompile(`\s{0,1}\((cap|low|up),\s*-(\d+)\)`)
 	reQuoteEnd := regexp.MustCompile(`[!.,?]\s'`)
@@ -162,8 +166,6 @@ func CorrectAll(str string) string {
 	result = SetChars(reLow, result, "low")
 	result = SetChars(reUp, result, "up")
 	result = fixQuote(reQuotes, result)
-	result = fixPunc(rePunc, result)
-	result = fixQuoteEnd(reQuoteEnd, result)
 	result = FixAn(reAn, result)
 	for i := 0; i <= upManyCount; i++ {
 		result = SetCharsMany(reUpMany, result, "up")
@@ -192,7 +194,9 @@ func CorrectAll(str string) string {
 	for a := 0; a <= capCount; a++ {
 		result = SetChars(reCap, result, "cap")
 	}
+	result = fixPunc(rePunc, result)
 	result = fixPunc2(rePunc2, result)
+	result = fixQuoteEnd(reQuoteEnd, result)
 	result = EmptyCheck(result)
 
 	return result
