@@ -2,209 +2,103 @@ package reloaded
 
 import (
 	"regexp"
-	"strconv"
-	"strings"
-	"unicode"
-	// "golang.org/x/text/cases"
-	// "golang.org/x/text/language"
 )
-
-func setNums(re *regexp.Regexp, str string, numTypeName string, numTypeInt int) string {
-	return re.ReplaceAllStringFunc(str, func(arr string) string {
-		last6Runes := len(arr) - 6
-		arr = arr[:last6Runes]
-		arr = strings.Trim(arr, " ")
-		arr = strings.Trim(arr, ",")
-		arr = strings.Trim(arr, ".")
-		arr = strings.Trim(arr, "(")
-		arr = strings.Trim(arr, ")")
-		arr = strings.Trim(arr, "[")
-		arr = strings.Trim(arr, "]")
-		arr = strings.Trim(arr, "!")
-		arr = strings.Trim(arr, ":")
-		arr = strings.Trim(arr, ";")
-		arr = strings.Trim(arr, "'")
-		decDigit, _ := strconv.ParseInt(arr, numTypeInt, 64)
-		result := strconv.Itoa(int(decDigit))
-		return result
-	})
-}
-
-func setChars(re *regexp.Regexp, str string, charType string) string {
-	return re.ReplaceAllStringFunc(str, func(arr string) string {
-		lastRunes := len(arr) - 6
-		if len(charType) == 2 {
-			lastRunes++
-		}
-		arr = arr[:lastRunes]
-		// var caser cases.Caser //{without deprication}
-		switch charType {
-		case "cap":
-			// caser = cases.Title(language.English) //{without deprication}
-			arr = strings.ToLower(arr)
-			arr = strings.ToUpper(string(arr[0])) + arr[1:]
-		case "low":
-			// caser = cases.Title(language.English) //{without deprication}
-			arr = strings.ToLower(arr)
-		case "up":
-			// caser = cases.Title(language.English) //{without deprication}
-			arr = strings.ToUpper(arr)
-		}
-		// arr = caser.String(arr) //{without deprication}
-		return arr
-	})
-}
 
 func fixPunc(re *regexp.Regexp, str string) string {
 	return re.ReplaceAllStringFunc(str, func(arr string) string {
-		connector := " "
-		if strings.HasSuffix(arr, "\n") {
-			connector = "\n"
+		arr = theTrimSpace(arr)
+		arr = trimBackSlashR(arr)
+		return arr + " "
+	})
+}
+
+func theTrimSpace(str string) string {
+	result := ""
+	for _, v := range str {
+		if v == ' ' || v == '\n' {
+			continue
 		}
-		arr = strings.TrimSpace(arr)
-		return arr + connector
+		result += string(v)
+	}
+	return result
+}
+
+func trimBackSlashR(str string) string {
+	result := ""
+	for _, v := range str {
+		if v == '\r' {
+			continue
+		}
+		result += string(v)
+	}
+	return result
+}
+
+func fixPunc2(re *regexp.Regexp, str string) string {
+	return re.ReplaceAllStringFunc(str, func(arr string) string {
+		result := theTrimSpace(arr)
+		return result + " "
 	})
 }
 
 func fixQuote(re *regexp.Regexp, str string) string {
 	return re.ReplaceAllStringFunc(str, func(arr string) string {
+		quotesAfter := ""
+		connector := ""
+		if arr[0] != '\'' {
+			connector = string(arr[0])
+		}
+		arr = headSpacesCut(arr)
 		headCuttedStr := headSpacesCut(arr[1:])
-		return "'" + tailSpacesCut(headCuttedStr[:len(headCuttedStr)-1]) + "'"
+		return connector + "'" + tailSpacesCut(headCuttedStr[:len(headCuttedStr)-1], quotesAfter) + "'"
 	})
 }
 
 func headSpacesCut(str string) string {
-	if str[0] == ' ' {
+	if str[0] == ' ' || str[0] == '\n' || str[0] == '\r' {
 		return headSpacesCut(str[1:])
 	}
 	return str
 }
 
-func tailSpacesCut(str string) string {
-	if str[len(str)-1] == ' ' {
-		return headSpacesCut(str[:len(str)-1])
+func tailSpacesCut(str, quotesAfter string) string {
+	if str[len(str)-1] == '\'' {
+		return tailSpacesCut(str[:len(str)-1], quotesAfter+"'")
 	}
-	return str
+	if str[len(str)-1] == ' ' || str[len(str)-1] == '\n' || str[len(str)-1] == '\r' {
+		return tailSpacesCut(str[:len(str)-1], quotesAfter)
+	}
+	return str + quotesAfter
 }
 
-func fixAn(re *regexp.Regexp, str string) string {
+func fixQuoteEnd(re *regexp.Regexp, str string) string {
 	return re.ReplaceAllStringFunc(str, func(arr string) string {
-		letter := arr[len(arr)-1]
-		switch letter {
-		case 'a':
-			arr = arr[:2] + "n" + arr[2:]
-		case 'e':
-			arr = arr[:2] + "n" + arr[2:]
-		case 'i':
-			arr = arr[:2] + "n" + arr[2:]
-		case 'o':
-			arr = arr[:2] + "n" + arr[2:]
-		case 'u':
-			arr = arr[:2] + "n" + arr[2:]
-		case 'h':
-			arr = arr[:2] + "n" + arr[2:]
-		case 'A':
-			arr = arr[:2] + "n" + arr[2:]
-		case 'E':
-			arr = arr[:2] + "n" + arr[2:]
-		case 'I':
-			arr = arr[:2] + "n" + arr[2:]
-		case 'O':
-			arr = arr[:2] + "n" + arr[2:]
-		case 'U':
-			arr = arr[:2] + "n" + arr[2:]
-		case 'H':
-			arr = arr[:2] + "n" + arr[2:]
-		}
-
-		return arr
-	})
-}
-
-func setCharsMany(re *regexp.Regexp, str string, charType string) string {
-	return re.ReplaceAllStringFunc(str, func(arr string) string {
-		wordsToChange := 0
-		startFrom := 0
-		countSpace := 0
-		var arrToChange string
-		var i int
-		var cutHere int
-		for i = len(arr) - 1; i >= 0; i-- {
-			if arr[i] == ' ' {
-				wordsToChange, _ = strconv.Atoi(arr[i+1 : len(arr)-1])
-				break
-			}
-		}
-		for i = len(arr) - 1; i >= 0; i-- {
-			if arr[i] == '(' {
-				startFrom = i
-				break
-			}
-		}
-		for i = startFrom; i >= 0; i-- {
-			if unicode.IsLetter(rune(arr[i])) {
-				startFrom = i
-				break
-			}
-		}
-		for i = startFrom; i >= 0; i-- {
-			if arr[i] == ' ' {
-				countSpace++
-				for i >= 0 {
-					if unicode.IsLetter(rune(arr[i])) {
-						break
-					}
-					i--
-				}
-			}
-			if countSpace == wordsToChange {
-				arrToChange = arr[i+1:]
-				break
-			}
-		}
-		switch charType {
-		case "up":
-			arrToChange = strings.ToUpper(arrToChange)
-		case "cap":
-			arrToChange = strings.ToLower(arrToChange)
-			arrToChange = strings.ToUpper(string(arrToChange[0])) + arrToChange[1:]
-		case "low":
-			arrToChange = strings.ToLower(arrToChange)
-		}
-		for j := len(arrToChange) - 1; j >= 0; j-- {
-			if arrToChange[j] == '(' {
-				cutHere = j
-				break
-			}
-		}
-		return arr[:i+1] + arrToChange[:cutHere-1]
+		return tailSpacesCut(arr[:len(arr)-1], "'")
 	})
 }
 
 func CorrectAll(str string) string {
-	reHex := regexp.MustCompile(`[a-fA-F0-9]+[\s,!.\[\]{}():;']*\(hex\)`)
-	reBin := regexp.MustCompile(`[0-1]+[\s,!.\[\]{}():;']*\(bin\)`)
-	reCap := regexp.MustCompile(`[a-zA-Z'\[\](){}]+[\s,!.:;]*\(cap\)`)
-	reLow := regexp.MustCompile(`[a-zA-Z'\[\](){}]+[\s,!.:;]*\(low\)`)
-	reUp := regexp.MustCompile(`[a-zA-Z\'[\](){}]+[\s,!.:;]*\(up\)`)
-	reCapMany := regexp.MustCompile(`.*\(cap,\s(\d+)\)`)
-	reUpMany := regexp.MustCompile(`.*\(up,\s(\d+)\)`)
-	reLowMany := regexp.MustCompile(`.*\(low,\s(\d+)\)`)
+	reHex := regexp.MustCompile(`\b[ ]*[a-fA-F0-9]+[\s,!.\[\]{}():;']*\(hex\)`)
+	reBin := regexp.MustCompile(`\b[ ]*[0-1]+[\s,!.\[\]{}():;']*\(bin\)`)
 	rePunc := regexp.MustCompile(`[\s^.?!]*[.,,,!,?,:;]\s*`)
-	reQuotes := regexp.MustCompile(`'\s*[^']*\s*'`)
+	rePunc2 := regexp.MustCompile(`([?!.]\s*)+`)
+	reQuotes := regexp.MustCompile(`(\s)*'\s*.*\s*'`)
 	reAn := regexp.MustCompile(`\s[Aa]\s+\w\w+`)
+	reQuoteEnd := regexp.MustCompile(`'.*[!.,?]\s'`)
 
-	result := setNums(reBin, str, "(bin)", 2)
-	result = setNums(reHex, result, "(hex)", 16)
-	result = setChars(reCap, result, "cap")
-	result = setChars(reLow, result, "low")
-	result = setChars(reUp, result, "up")
-	result = fixPunc(rePunc, result)
+	result := SetNums(reBin, str, 2)
+	result = SetNums(reHex, result, 16)
 	result = fixQuote(reQuotes, result)
-	result = fixAn(reAn, result)
-	result = setCharsMany(reUpMany, result, "up")
-	result = setCharsMany(reCapMany, result, "cap")
-	result = setCharsMany(reLowMany, result, "low")
-
+	result = FixAn(reAn, result)
+	result = fixPunc(rePunc, result)
+	result = fixPunc2(rePunc2, result)
+	result = fixQuoteEnd(reQuoteEnd, result)
+	result = HandleCluMany(result)
+	result = HandleClu(result)
+	//result = headSpacesCut(tailSpacesCut(result, ""))
+	result = clean(result)
+	result = fixPunc(rePunc, result)
+	result = fixPunc2(rePunc2, result)
+	result = fixQuoteEnd(reQuoteEnd, result)
 	return result
 }
