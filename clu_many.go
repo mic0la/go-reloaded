@@ -211,25 +211,7 @@ func capMany(str string, index int) (string, int) {
 				i--
 			}
 			if countSpace == wordsToChange {
-				// fmt.Println("we catch")
-				//str = str[:i+1] + strings.ToTitle(str[i+1:index]) + str[index:]
-				for j := i - 1; j < index-1; j++ {
-					if unicode.IsLetter(rune(str[j])) {
-						str = str[:j-1] + strings.ToUpper(string(str[j-1])) + str[j:]
-					}
-					for j < index-1 {
-						if unicode.IsSpace(rune(str[j])) {
-							for j < index-1 {
-								if unicode.IsLetter(rune(str[j])) || unicode.IsDigit(rune(str[j])) {
-									break
-								}
-								j++
-							}
-							break
-						}
-						j++
-					}
-				}
+				str = str[:i+1] + Capitalize(str[i+1:index]) + str[index:]
 				break
 			}
 		}

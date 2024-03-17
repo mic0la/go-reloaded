@@ -78,8 +78,8 @@ func fixQuoteEnd(re *regexp.Regexp, str string) string {
 }
 
 func CorrectAll(str string) string {
-	reHex := regexp.MustCompile(`\b[ ]*[a-fA-F0-9]+[\s,!.\[\]{}():;']*\(hex\)`)
-	reBin := regexp.MustCompile(`\b[ ]*[0-1]+[\s,!.\[\]{}():;']*\(bin\)`)
+	reHex := regexp.MustCompile(`\b[ ]*[a-fA-F0-9]+[\s,!.\[\]{}:;']*\(hex\)`)
+	reBin := regexp.MustCompile(`\b[ ]*[0-1]+[\s,!.\[\]{}:;']*\(bin\)`)
 	rePunc := regexp.MustCompile(`[\s^.?!]*[.,,,!,?,:;]\s*`)
 	rePunc2 := regexp.MustCompile(`([?!.]\s*)+`)
 	reQuotes := regexp.MustCompile(`(\s)*'\s*.*\s*'`)
@@ -96,6 +96,8 @@ func CorrectAll(str string) string {
 	result = HandleCluMany(result)
 	result = HandleClu(result)
 	//result = headSpacesCut(tailSpacesCut(result, ""))
+	result = SetNums(reBin, result, 2)
+	result = SetNums(reHex, result, 16)
 	result = clean(result)
 	result = fixPunc(rePunc, result)
 	result = fixPunc2(rePunc2, result)
