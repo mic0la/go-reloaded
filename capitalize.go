@@ -1,13 +1,16 @@
 package reloaded
 
-import "unicode"
+import (
+	"strings"
+	"unicode"
+)
 
 func Capitalize(str string) string {
 	// Handle empty string
 	if str == "" {
 		return str
 	}
-
+	str = strings.ToLower(str)
 	// Convert string to rune slice for easier manipulation
 	runes := []rune(str)
 
