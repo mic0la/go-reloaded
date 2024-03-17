@@ -125,85 +125,85 @@ func up(str string, index int) string {
 	return str
 }
 
-func HandleClu(str string) string {
-	for i := 0; i < len(str); i++ {
-		if str[i] == '(' {
-			if i+4 > len(str) {
-				break
-			}
-			switch str[i : i+4] {
-			case "(up)":
-				str = up(str, i)
-				if i >= 4 {
-					i = i - 4
-				}
-			}
-			if i+5 > len(str) {
-				break
-			}
-			switch str[i : i+5] {
-			case "(cap)":
-				str = cap(str, i)
-				if i >= 5 {
-					i = i - 4
-				}
-			case "(low)":
-				str = low(str, i)
-				if i >= 5 {
-					i = i - 4
-				}
-			}
-			if i+4 > len(str) {
-				break
-			}
-			switch str[i : i+4] {
-			case "(UP)":
-				str = up(str, i)
-				if i >= 4 {
-					i = i - 4
-				}
-			}
-			if i+5 > len(str) {
-				break
-			}
-			switch str[i : i+5] {
-			case "(CAP)":
-				str = cap(str, i)
-				if i >= 5 {
-					i = i - 4
-				}
-			case "(LOW)":
-				str = low(str, i)
-				if i >= 5 {
-					i = i - 4
-				}
-			}
-			if i+4 > len(str) {
-				break
-			}
-			switch str[i : i+4] {
-			case "(Up)":
-				str = up(str, i)
-				if i >= 4 {
-					i = i - 4
-				}
-			}
-			if i+5 > len(str) {
-				break
-			}
-			switch str[i : i+5] {
-			case "(Cap)":
-				str = cap(str, i)
-				if i >= 5 {
-					i = i - 4
-				}
-			case "(Low)":
-				str = low(str, i)
-				if i >= 5 {
-					i = i - 4
-				}
-			}
-		}
-	}
-	return str
-}
+// func HandleClu(str string) string {
+// 	for i := 0; i < len(str); i++ {
+// 		if str[i] == '(' {
+// 			if i+4 > len(str) {
+// 				break
+// 			}
+// 			switch str[i : i+4] {
+// 			case "(up)":
+// 				str = up(str, i)
+// 				if i >= 4 {
+// 					i = i - 4
+// 				}
+// 			}
+// 			if i+5 > len(str) {
+// 				break
+// 			}
+// 			switch str[i : i+5] {
+// 			case "(cap)":
+// 				str = cap(str, i)
+// 				if i >= 5 {
+// 					i = i - 4
+// 				}
+// 			case "(low)":
+// 				str = low(str, i)
+// 				if i >= 5 {
+// 					i = i - 4
+// 				}
+// 			}
+// 			if i+4 > len(str) {
+// 				break
+// 			}
+// 			switch str[i : i+4] {
+// 			case "(UP)":
+// 				str = up(str, i)
+// 				if i >= 4 {
+// 					i = i - 4
+// 				}
+// 			}
+// 			if i+5 > len(str) {
+// 				break
+// 			}
+// 			switch str[i : i+5] {
+// 			case "(CAP)":
+// 				str = cap(str, i)
+// 				if i >= 5 {
+// 					i = i - 4
+// 				}
+// 			case "(LOW)":
+// 				str = low(str, i)
+// 				if i >= 5 {
+// 					i = i - 4
+// 				}
+// 			}
+// 			if i+4 > len(str) {
+// 				break
+// 			}
+// 			switch str[i : i+4] {
+// 			case "(Up)":
+// 				str = up(str, i)
+// 				if i >= 4 {
+// 					i = i - 4
+// 				}
+// 			}
+// 			if i+5 > len(str) {
+// 				break
+// 			}
+// 			switch str[i : i+5] {
+// 			case "(Cap)":
+// 				str = cap(str, i)
+// 				if i >= 5 {
+// 					i = i - 4
+// 				}
+// 			case "(Low)":
+// 				str = low(str, i)
+// 				if i >= 5 {
+// 					i = i - 4
+// 				}
+// 			}
+// 		}
+// 	}
+// 	return str
+// }

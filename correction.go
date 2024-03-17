@@ -95,7 +95,7 @@ func CorrectAll(str string) string {
 	result = fixPunc2(rePunc2, result)
 	result = fixQuoteEnd(reQuoteEnd, result)
 	result = HandleCluMany(result)
-	result = HandleClu(result)
+	//result = HandleClu(result)
 	//result = headSpacesCut(tailSpacesCut(result, ""))
 	result = SetNums(reBin, result, 2)
 	result = SetNums(reHex, result, 16)
