@@ -88,6 +88,7 @@ func CorrectAll(str string) string {
 
 	result := SetNums(reBin, str, 2)
 	result = SetNums(reHex, result, 16)
+	result = SetNums(reBin, result, 2)
 	result = fixQuote(reQuotes, result)
 	result = FixAn(reAn, result)
 	result = fixPunc(rePunc, result)
@@ -98,6 +99,7 @@ func CorrectAll(str string) string {
 	//result = headSpacesCut(tailSpacesCut(result, ""))
 	result = SetNums(reBin, result, 2)
 	result = SetNums(reHex, result, 16)
+	result = SetNums(reBin, result, 2)
 	result = clean(result)
 	result = fixPunc(rePunc, result)
 	result = fixPunc2(rePunc2, result)

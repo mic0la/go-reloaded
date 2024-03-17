@@ -1,14 +1,12 @@
 package reloaded
 
 import (
-	"fmt"
 	"regexp"
 	"strconv"
 )
 
 func SetNums(re *regexp.Regexp, str string, numTypeInt int) string {
 	return re.ReplaceAllStringFunc(str, func(arr string) string {
-		fmt.Println("catched", arr)
 		connector := ""
 		connectorEnd := ""
 		switch arr[0] {
