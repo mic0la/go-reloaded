@@ -241,6 +241,7 @@ func HandleCluMany(str string) string {
 				if i >= (cut-i)+1 {
 					i = i - (cut - i)
 				}
+				i -= 1
 			case "(up)":
 				str = up(str, i)
 				if i >= 4 {
@@ -256,11 +257,13 @@ func HandleCluMany(str string) string {
 				if i >= (cut-i)+1 {
 					i = i - (cut - i)
 				}
+				i -= 1
 			case "(low,":
 				str, cut = lowMany(str, i)
 				if i >= (cut-i)+1 {
 					i = i - (cut - i)
 				}
+				i -= 1
 			case "(cap)":
 				str = cap(str, i)
 				if i >= 5 {

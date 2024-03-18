@@ -1,6 +1,9 @@
 package reloaded
 
 func clean(str string) string {
+	if len(str) < 5 {
+		return str
+	}
 	for i := 0; i < len(str); i++ {
 		if str[i] == '(' {
 			switch str[i+1 : i+5] {
