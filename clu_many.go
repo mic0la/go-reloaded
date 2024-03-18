@@ -1,15 +1,12 @@
 package reloaded
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 	"unicode"
 )
 
 func lowMany(str string, index int) (string, int) {
-	fmt.Println(str)
-	fmt.Println()
 	endOfCap := 0
 	end := 0
 	countSpace := 0
