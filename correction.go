@@ -102,6 +102,6 @@ func CorrectAll(str string) string {
 	result = fixPunc(rePunc, result)
 	result = fixPunc2(rePunc2, result)
 	result = fixQuoteEnd(reQuoteEnd, result)
-	//result = headSpacesCut(tailSpacesCut(result, ""))
+	result = headSpacesCut(tailSpacesCut(result, ""))
 	return result
 }
