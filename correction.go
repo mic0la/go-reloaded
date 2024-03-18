@@ -55,6 +55,9 @@ func fixQuote(re *regexp.Regexp, str string) string {
 }
 
 func headSpacesCut(str string) string {
+	if len(str) == 0 {
+		return str
+	}
 	if str[0] == ' ' || str[0] == '\n' || str[0] == '\r' {
 		return headSpacesCut(str[1:])
 	}
@@ -62,6 +65,9 @@ func headSpacesCut(str string) string {
 }
 
 func tailSpacesCut(str, quotesAfter string) string {
+	if len(str) == 0 {
+		return str
+	}
 	if str[len(str)-1] == '\'' {
 		return tailSpacesCut(str[:len(str)-1], quotesAfter+"'")
 	}

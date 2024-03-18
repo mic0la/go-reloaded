@@ -1,12 +1,15 @@
 package reloaded
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"unicode"
 )
 
 func lowMany(str string, index int) (string, int) {
+	fmt.Println(str)
+	fmt.Println()
 	endOfCap := 0
 	end := 0
 	countSpace := 0
@@ -50,7 +53,7 @@ func lowMany(str string, index int) (string, int) {
 		return str, end
 	}
 	for i := index - 1; i >= 0; i-- {
-		if i == 0 {
+		if i == 0 || i == 1 {
 			str = strings.ToLower(str[:index]) + str[index:]
 			break
 		}
@@ -115,7 +118,7 @@ func upMany(str string, index int) (string, int) {
 		return str, end
 	}
 	for i := index - 1; i >= 0; i-- {
-		if i == 0 {
+		if i == 0 || i == 1 {
 			str = strings.ToUpper(str[:index]) + str[index:]
 			break
 		}
@@ -180,7 +183,7 @@ func capMany(str string, index int) (string, int) {
 		return str, end
 	}
 	for i := index - 1; i >= 0; i-- {
-		if i == 0 {
+		if i == 0 || i == 1 {
 			//str = strings.ToTitle(str[:index]) + str[index:]
 			str = strings.ToUpper(string(str[0])) + str[1:]
 			for j := 0; j < index-1; j++ {
