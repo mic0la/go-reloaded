@@ -25,6 +25,9 @@ func lowMany(str string, index int) (string, int) {
 			wordsToChange, _ = strconv.Atoi(str[i+2 : to+1])
 			break
 		}
+		if i == len(str)-1 {
+			return str, end
+		}
 	}
 	for i := index - 1; i > 0; i-- {
 		if str[i] == ' ' || str[i] == '\n' {
@@ -90,6 +93,9 @@ func upMany(str string, index int) (string, int) {
 			wordsToChange, _ = strconv.Atoi(str[i+2 : to+1])
 			break
 		}
+		if i == len(str)-1 {
+			return str, end
+		}
 	}
 	for i := index - 1; i > 0; i-- {
 		if str[i] == ' ' || str[i] == '\n' {
@@ -154,6 +160,9 @@ func capMany(str string, index int) (string, int) {
 			}
 			wordsToChange, _ = strconv.Atoi(str[i+2 : to+1])
 			break
+		}
+		if i == len(str)-1 {
+			return str, end
 		}
 	}
 	for i := index - 1; i > 0; i-- {
