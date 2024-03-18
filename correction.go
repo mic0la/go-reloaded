@@ -81,8 +81,8 @@ func CorrectAll(str string) string {
 	reHex := regexp.MustCompile(`\b[ ]*[a-fA-F0-9]+[\s,!.\[\]{}:;']*\(hex\)`)
 	reBin := regexp.MustCompile(`\b[ ]*[0-1]+[\s,!.\[\]{}:;']*\(bin\)`)
 	rePunc := regexp.MustCompile(`[\s^.?!]*[.,,,!,?,:;]\s*`)
-	rePunc2 := regexp.MustCompile(`([?!.]\s*)+`)
-	reQuotes := regexp.MustCompile(`(\s)*'\s*.*\s*'`)
+	rePunc2 := regexp.MustCompile(`([?!.,:;]\s*)+`)
+	reQuotes := regexp.MustCompile(`(\s)*'\s*.*(\s|.)*'`)
 	reAn := regexp.MustCompile(`\s[Aa]\s+\w\w+`)
 	reQuoteEnd := regexp.MustCompile(`'.*[!.,?]\s'`)
 
@@ -95,7 +95,6 @@ func CorrectAll(str string) string {
 	result = fixPunc2(rePunc2, result)
 	result = fixQuoteEnd(reQuoteEnd, result)
 	result = HandleCluMany(result)
-	//result = HandleClu(result)
 	result = SetNums(reBin, result, 2)
 	result = SetNums(reHex, result, 16)
 	result = SetNums(reBin, result, 2)
@@ -103,6 +102,6 @@ func CorrectAll(str string) string {
 	result = fixPunc(rePunc, result)
 	result = fixPunc2(rePunc2, result)
 	result = fixQuoteEnd(reQuoteEnd, result)
-	result = headSpacesCut(tailSpacesCut(result, ""))
+	//result = headSpacesCut(tailSpacesCut(result, ""))
 	return result
 }
