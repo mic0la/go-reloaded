@@ -246,6 +246,8 @@ func HandleCluMany(str string) string {
 				str = up(str, i)
 				if i >= 4 {
 					i = i - 4
+				} else {
+					str = HandleCluMany(str)
 				}
 			}
 			if i+5 > len(str) {
@@ -267,12 +269,16 @@ func HandleCluMany(str string) string {
 			case "(cap)":
 				str = cap(str, i)
 				if i >= 5 {
-					i = i - 4
+					i = i - 5
+				} else {
+					str = HandleCluMany(str)
 				}
 			case "(low)":
 				str = low(str, i)
 				if i >= 5 {
-					i = i - 4
+					i = i - 5
+				} else {
+					str = HandleCluMany(str)
 				}
 			}
 		}
