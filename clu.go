@@ -32,7 +32,12 @@ func cap(str string, index int) string {
 	}
 	for i := index - 1; i >= 0; i-- {
 		if i == 0 {
-			str = strings.ToUpper(string(str[0])) + strings.ToLower(str[1:index]) + str[index:]
+			for k := 0; k < index-1; k++ {
+				if unicode.IsLetter(rune(str[k])) || unicode.IsDigit(rune(str[k])) {
+					str = str[:k] + strings.ToUpper(string(str[k])) + strings.ToLower(str[k+1:index]) + str[index:]
+					break
+				}
+			}
 			break
 		}
 		if str[i] == ' ' || str[i] == '\n' {
